@@ -1,0 +1,16 @@
+{
+  "name": "godmind-ai",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "GodMind AI - Deploy to Vercel with Supabase",
+  "main": "api/index.js",
+  "scripts": {
+    "vercel-build": "echo 'Build complete'",
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "z-ai-web-dev-sdk": "latest"
+  }
+}

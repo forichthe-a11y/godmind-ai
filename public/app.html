@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GodMind AI - The AI That Thinks Smarter</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #f0f0f5; line-height: 1.6; overflow-x: hidden; }
+a { color: #00ff88; text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+input, textarea, select { font-family: inherit; outline: none; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,255,136,0.4); }
+@keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes glow { 0%,100% { box-shadow:0 0 20px rgba(0,255,136,0.2); } 50% { box-shadow:0 0 40px rgba(0,255,136,0.4); } }
+@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+@keyframes dotBounce { 0%,80%,100% { transform:translateY(0); } 40% { transform:translateY(-8px); } }
+@keyframes gradientShift { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
+@keyframes toastIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+@keyframes toastOut { from { transform:translateX(0); opacity:1; } to { transform:translateX(100%); opacity:0; } }
+
+#toast-container { position:fixed; top:20px; right:20px; z-index:10000; display:flex; flex-direction:column; gap:8px; }
+.toast { padding:12px 20px; border-radius:8px; font-size:14px; backdrop-filter:blur(10px); border:1px solid rgba(0,255,136,0.2); animation:toastIn 0.3s ease; min-width:280px; max-width:400px; display:flex; align-items:center; gap:10px; }
+.toast.success { background:rgba(0,255,136,0.15); color:#00ff88; border-color:rgba(0,255,136,0.3); }
+.toast.error { background:rgba(255,60,60,0.15); color:#ff5555; border-color:rgba(255,60,60,0.3); }
+.toast.info { background:rgba(0,200,255,0.15); color:#00c8ff; border-color:rgba(0,200,255,0.3); }
+.toast.hiding { animation:toastOut 0.3s ease forwards; }
+
+#landing { min-height:100vh; background:#0a0a0f; position:relative; }
+#landing::before { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:radial-gradient(ellipse at 20% 50%,rgba(0,255,136,0.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(0,255,136,0.03) 0%,transparent 50%); pointer-events:none; z-index:0; }
+
+.landing-nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:16px 40px; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(20px); background:rgba(10,10,15,0.8); border-bottom:1px solid rgba(0,255,136,0.05); }
+.landing-logo { display:flex; align-items:center; gap:10px; font-size:22px; font-weight:800; color:#f0f0f5; letter-spacing:-0.5px; }
+.landing-logo span { color:#00ff88; }
+.landing-nav-btns { display:flex; gap:12px; align-items:center; }
+.btn-ghost { padding:8px 20px; border-radius:8px; font-size:14px; font-weight:500; color:#f0f0f5; background:transparent; border:1px solid rgba(255,255,255,0.1); transition:all 0.2s; }
+.btn-ghost:hover { border-color:rgba(0,255,136,0.3); color:#00ff88; }
+.btn-primary { padding:8px 20px; border-radius:8px; font-size:14px; font-weight:600; color:#0a0a0f; background:#00ff88; transition:all 0.2s; }
+.btn-primary:hover { background:#00cc6e; box-shadow:0 0 20px rgba(0,255,136,0.3); }
+
+.hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:120px 20px 80px; position:relative; z-index:1; }
+.hero-badge { display:inline-flex; align-items:center; gap:8px; padding:6px 16px; border-radius:20px; font-size:13px; background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.2); color:#00ff88; margin-bottom:24px; animation:fadeIn 0.8s ease; }
+.hero h1 { font-size:clamp(36px,6vw,72px); font-weight:800; line-height:1.1; margin-bottom:20px; background:linear-gradient(135deg,#f0f0f5 0%,#00ff88 50%,#f0f0f5 100%); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:gradientShift 4s ease infinite,fadeInUp 1s ease; }
+.hero p { font-size:clamp(16px,2vw,20px); color:#8888aa; max-width:600px; margin-bottom:36px; animation:fadeInUp 1s ease 0.2s both; }
+.hero-btns { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; animation:fadeInUp 1s ease 0.4s both; }
+.btn-hero { padding:14px 32px; border-radius:12px; font-size:16px; font-weight:600; transition:all 0.3s; display:flex; align-items:center; gap:8px; }
+.btn-hero-primary { color:#0a0a0f; background:#00ff88; box-shadow:0 0 30px rgba(0,255,136,0.2); }
+.btn-hero-primary:hover { transform:translateY(-2px); box-shadow:0 0 50px rgba(0,255,136,0.4); }
+.btn-hero-secondary { color:#f0f0f5; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); }
+.btn-hero-secondary:hover { border-color:rgba(0,255,136,0.3); background:rgba(0,255,136,0.05); }
+.btn-hero svg { width:18px; height:18px; }
+
+.features { padding:100px 40px; position:relative; z-index:1; }
+.section-title { text-align:center; font-size:14px; font-weight:600; color:#00ff88; text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; }
+.section-heading { text-align:center; font-size:clamp(28px,4vw,42px); font-weight:700; margin-bottom:60px; }
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; max-width:1100px; margin:0 auto; }
+.feature-card { padding:32px; border-radius:16px; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.1); backdrop-filter:blur(10px); transition:all 0.3s; animation:fadeInUp 0.8s ease both; }
+.feature-card:nth-child(1) { animation-delay:0.1s; }
+.feature-card:nth-child(2) { animation-delay:0.2s; }
+.feature-card:nth-child(3) { animation-delay:0.3s; }
+.feature-card:nth-child(4) { animation-delay:0.4s; }
+.feature-card:hover { border-color:rgba(0,255,136,0.3); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+.feature-icon { width:48px; height:48px; border-radius:12px; background:rgba(0,255,136,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+.feature-icon svg { width:24px; height:24px; color:#00ff88; }
+.feature-card h3 { font-size:18px; font-weight:600; margin-bottom:8px; }
+.feature-card p { font-size:14px; color:#8888aa; line-height:1.7; }
+
+.testimonials { padding:80px 40px 120px; position:relative; z-index:1; }
+.testimonials-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; max-width:1100px; margin:0 auto; }
+.testimonial-card { padding:28px; border-radius:16px; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.1); backdrop-filter:blur(10px); transition:all 0.3s; }
+.testimonial-card:hover { border-color:rgba(0,255,136,0.2); }
+.testimonial-stars { color:#00ff88; font-size:14px; margin-bottom:12px; letter-spacing:2px; }
+.testimonial-text { font-size:15px; color:#c0c0d0; margin-bottom:20px; line-height:1.7; font-style:italic; }
+.testimonial-author { display:flex; align-items:center; gap:12px; }
+.testimonial-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#00ff88,#008844); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; color:#0a0a0f; }
+.testimonial-name { font-size:14px; font-weight:600; }
+.testimonial-role { font-size:12px; color:#8888aa; }
+
+
+.landing-footer { padding:40px; border-top:1px solid rgba(0,255,136,0.05); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; position:relative; z-index:1; }
+.footer-links { display:flex; gap:24px; }
+.footer-links a { font-size:14px; color:#8888aa; transition:color 0.2s; }
+.footer-links a:hover { color:#00ff88; text-decoration:none; }
+.footer-copy { font-size:13px; color:#555566; }
+.founders-section { padding:80px 40px; position:relative; z-index:1; }
+.founders-heading { text-align:center; font-size:14px; font-weight:600; color:#00ff88; text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; }
+.founders-title { text-align:center; font-size:clamp(28px,4vw,42px); font-weight:700; margin-bottom:48px; }
+.founders-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; max-width:800px; margin:0 auto 48px; }
+.founder-card { padding:32px; border-radius:16px; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.1); backdrop-filter:blur(10px); text-align:center; transition:all 0.3s; animation:fadeInUp 0.8s ease both; }
+.founder-card:nth-child(2) { animation-delay:0.15s; }
+.founder-card:hover { border-color:rgba(0,255,136,0.3); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+.founder-avatar { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#00ff88,#008844); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:26px; color:#0a0a0f; margin:0 auto 16px; }
+.founder-name { font-size:20px; font-weight:700; margin-bottom:4px; }
+.founder-role { font-size:13px; color:#00ff88; font-weight:500; margin-bottom:16px; }
+.founder-details { font-size:13px; color:#8888aa; line-height:1.8; }
+.founder-details a { color:#00ff88; text-decoration:none; font-weight:500; word-break:break-all; }
+.founder-details a:hover { text-decoration:underline; }
+.donate-section { max-width:600px; margin:0 auto; padding:32px; border-radius:20px; background:rgba(0,255,136,0.05); border:1px solid rgba(0,255,136,0.15); text-align:center; animation:fadeInUp 1s ease 0.3s both; }
+.donate-section h3 { font-size:22px; font-weight:700; margin-bottom:8px; }
+.donate-section p { font-size:14px; color:#8888aa; margin-bottom:20px; line-height:1.6; }
+.donate-upi-list { display:flex; flex-direction:column; gap:10px; max-width:400px; margin:0 auto 20px; }
+.donate-upi-item { padding:12px 16px; border-radius:10px; background:rgba(0,0,0,0.3); border:1px solid rgba(0,255,136,0.1); display:flex; align-items:center; gap:12px; }
+.donate-upi-item svg { width:18px; height:18px; color:#00ff88; flex-shrink:0; }
+.donate-upi-item .upi-id { font-family:'SF Mono','Fira Code',monospace; font-size:13px; color:#c0c0d0; flex:1; word-break:break-all; }
+.donate-upi-item .upi-name { font-size:12px; color:#00ff88; font-weight:600; }
+.donate-upi-item .copy-btn { padding:4px 10px; border-radius:6px; font-size:11px; background:rgba(0,255,136,0.15); color:#00ff88; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+.donate-upi-item .copy-btn:hover { background:rgba(0,255,136,0.25); }
+.donate-contact { font-size:13px; color:#8888aa; margin-top:12px; }
+.donate-contact a { color:#00ff88; text-decoration:none; font-weight:500; }
+.donate-contact a:hover { text-decoration:underline; }
+.donate-heart { display:inline-flex; align-items:center; gap:6px; color:#ff4444; font-size:13px; }
+
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:1000; display:none; align-items:center; justify-content:center; }
+.modal-overlay.active { display:flex; }
+.modal { background:#12121e; border:1px solid rgba(0,255,136,0.15); border-radius:20px; padding:40px; width:420px; max-width:90vw; animation:fadeInUp 0.3s ease; position:relative; }
+.modal-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.05); border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#8888aa; transition:all 0.2s; }
+.modal-close:hover { color:#f0f0f5; background:rgba(255,255,255,0.1); }
+.modal h2 { font-size:24px; font-weight:700; margin-bottom:6px; }
+.modal .modal-sub { font-size:14px; color:#8888aa; margin-bottom:28px; }
+.form-group { margin-bottom:18px; }
+.form-group label { display:block; font-size:13px; font-weight:500; color:#c0c0d0; margin-bottom:6px; }
+.form-input { width:100%; padding:10px 14px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; font-size:14px; transition:all 0.2s; }
+.form-input:focus { border-color:rgba(0,255,136,0.4); box-shadow:0 0 0 3px rgba(0,255,136,0.1); }
+.form-input::placeholder { color:#555566; }
+.btn-submit { width:100%; padding:12px; border-radius:10px; font-size:15px; font-weight:600; color:#0a0a0f; background:#00ff88; transition:all 0.2s; margin-top:8px; }
+.btn-submit:hover { background:#00cc6e; }
+.btn-submit:disabled { opacity:0.5; cursor:not-allowed; }
+.modal-toggle { text-align:center; margin-top:20px; font-size:14px; color:#8888aa; }
+.modal-toggle a { color:#00ff88; cursor:pointer; font-weight:500; }
+.modal-toggle a:hover { text-decoration:underline; }
+
+#app { display:none; height:100vh; overflow:hidden; }
+#app.active { display:flex; }
+
+.sidebar { width:260px; min-width:260px; height:100vh; background:rgba(12,12,20,0.95); border-right:1px solid rgba(0,255,136,0.08); display:flex; flex-direction:column; backdrop-filter:blur(20px); transition:all 0.3s; z-index:50; position:relative; }
+.sidebar-header { padding:20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(0,255,136,0.05); }
+.sidebar-logo { font-size:18px; font-weight:800; color:#f0f0f5; }
+.sidebar-logo span { color:#00ff88; }
+.sidebar-logo svg { width:24px; height:24px; color:#00ff88; flex-shrink:0; }
+.sidebar-new-chat { margin:16px 16px 8px; padding:10px 16px; border-radius:10px; font-size:14px; font-weight:600; color:#0a0a0f; background:#00ff88; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; }
+.sidebar-new-chat:hover { background:#00cc6e; box-shadow:0 0 20px rgba(0,255,136,0.2); }
+.sidebar-new-chat svg { width:16px; height:16px; }
+.sidebar-section-label { font-size:11px; font-weight:600; color:#555566; text-transform:uppercase; letter-spacing:1px; padding:12px 20px 6px; }
+.sidebar-chats { flex:1; overflow-y:auto; padding:4px 8px; max-height:calc(100vh - 420px); }
+.chat-item { padding:10px 14px; border-radius:8px; font-size:13px; color:#8888aa; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:8px; margin-bottom:2px; position:relative; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chat-item:hover { background:rgba(255,255,255,0.05); color:#c0c0d0; }
+.chat-item.active { background:rgba(0,255,136,0.1); color:#00ff88; }
+.chat-item svg { width:14px; height:14px; flex-shrink:0; opacity:0.5; }
+.chat-item-delete { position:absolute; right:8px; top:50%; transform:translateY(-50%); opacity:0; background:rgba(255,60,60,0.1); border-radius:4px; padding:2px; color:#ff5555; transition:all 0.15s; }
+.chat-item:hover .chat-item-delete { opacity:1; }
+.chat-item-delete svg { width:12px; height:12px; opacity:1; }
+.sidebar-nav { padding:8px; border-top:1px solid rgba(0,255,136,0.05); }
+.nav-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; font-size:14px; color:#8888aa; cursor:pointer; transition:all 0.15s; margin-bottom:2px; }
+.nav-item:hover { background:rgba(255,255,255,0.05); color:#c0c0d0; }
+.nav-item.active { background:rgba(0,255,136,0.1); color:#00ff88; }
+.nav-item svg { width:18px; height:18px; flex-shrink:0; }
+.sidebar-user { padding:16px; border-top:1px solid rgba(0,255,136,0.05); display:flex; align-items:center; gap:10px; }
+.user-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#00ff88,#008844); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#0a0a0f; flex-shrink:0; }
+.user-info { flex:1; min-width:0; }
+.user-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-credits { font-size:11px; color:#00ff88; }
+.user-signout { background:rgba(255,255,255,0.05); border-radius:8px; padding:8px; color:#8888aa; transition:all 0.2s; }
+.user-signout:hover { background:rgba(255,60,60,0.1); color:#ff5555; }
+.user-signout svg { width:16px; height:16px; }
+
+.sidebar-toggle { display:none; position:fixed; top:12px; left:12px; z-index:60; background:rgba(15,15,25,0.9); border:1px solid rgba(0,255,136,0.1); border-radius:10px; padding:8px; color:#f0f0f5; backdrop-filter:blur(10px); }
+.sidebar-toggle svg { width:20px; height:20px; }
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:40; }
+
+.main-wrapper { flex:1; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+.top-header { padding:12px 24px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-bottom:1px solid rgba(0,255,136,0.05); background:rgba(12,12,20,0.8); backdrop-filter:blur(10px); min-height:60px; }
+.header-title { font-size:16px; font-weight:600; margin-right:auto; display:flex; align-items:center; gap:8px; }
+.header-title svg { width:18px; height:18px; color:#00ff88; }
+.header-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.header-select { padding:6px 12px; border-radius:8px; font-size:13px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; cursor:pointer; }
+.header-select:focus { border-color:rgba(0,255,136,0.4); }
+.header-select option { background:#12121e; color:#f0f0f5; }
+.mode-pills { display:flex; gap:4px; }
+.mode-pill { padding:5px 12px; border-radius:20px; font-size:12px; font-weight:500; background:rgba(255,255,255,0.05); color:#8888aa; border:1px solid transparent; transition:all 0.15s; cursor:pointer; }
+.mode-pill:hover { color:#c0c0d0; background:rgba(255,255,255,0.08); }
+.mode-pill.active { background:rgba(0,255,136,0.15); color:#00ff88; border-color:rgba(0,255,136,0.3); }
+.god-mode-toggle { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:#ff4444; cursor:pointer; }
+.god-mode-toggle .toggle-switch { width:36px; height:20px; border-radius:10px; background:rgba(255,255,255,0.1); position:relative; transition:all 0.3s; }
+.god-mode-toggle .toggle-switch::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#8888aa; transition:all 0.3s; }
+.god-mode-toggle.active .toggle-switch { background:rgba(255,68,68,0.3); box-shadow:0 0 10px rgba(255,68,68,0.2); }
+.god-mode-toggle.active .toggle-switch::after { left:18px; background:#ff4444; }
+.free-badge { padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; background:rgba(0,255,136,0.15); color:#00ff88; border:1px solid rgba(0,255,136,0.2); }
+
+.page { display:none; flex:1; overflow:hidden; flex-direction:column; }
+.page.active { display:flex; }
+
+.chat-messages { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:20px; }
+.chat-welcome { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px; }
+.chat-welcome-icon { width:80px; height:80px; border-radius:24px; background:rgba(0,255,136,0.1); display:flex; align-items:center; justify-content:center; margin-bottom:24px; animation:float 3s ease infinite; }
+.chat-welcome-icon svg { width:40px; height:40px; color:#00ff88; }
+.chat-welcome h2 { font-size:24px; font-weight:700; margin-bottom:8px; }
+.chat-welcome p { font-size:15px; color:#8888aa; margin-bottom:24px; }
+.suggestion-chips { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; max-width:600px; }
+.suggestion-chip { padding:8px 16px; border-radius:20px; font-size:13px; background:rgba(255,255,255,0.05); color:#c0c0d0; border:1px solid rgba(255,255,255,0.08); cursor:pointer; transition:all 0.2s; }
+.suggestion-chip:hover { border-color:rgba(0,255,136,0.3); color:#00ff88; background:rgba(0,255,136,0.05); }
+
+.message { display:flex; gap:12px; max-width:800px; animation:fadeIn 0.3s ease; }
+.message.user { align-self:flex-end; flex-direction:row-reverse; }
+.message-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+.message.user .message-avatar { background:linear-gradient(135deg,#00ff88,#008844); color:#0a0a0f; }
+.message.assistant .message-avatar { background:rgba(0,255,136,0.15); color:#00ff88; }
+.message-bubble { padding:14px 18px; border-radius:16px; font-size:14px; line-height:1.7; max-width:600px; }
+.message.user .message-bubble { background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.15); border-bottom-right-radius:4px; }
+.message.assistant .message-bubble { background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.08); border-bottom-left-radius:4px; backdrop-filter:blur(10px); }
+.message-bubble p { margin-bottom:8px; }
+.message-bubble p:last-child { margin-bottom:0; }
+.message-bubble strong { color:#00ff88; font-weight:600; }
+.message-bubble em { color:#c0c0d0; }
+.message-bubble code { background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:4px; font-family:'SF Mono','Fira Code',monospace; font-size:13px; color:#00ff88; }
+.message-bubble pre { background:rgba(0,0,0,0.5); border:1px solid rgba(0,255,136,0.1); border-radius:8px; padding:16px; margin:10px 0; overflow-x:auto; position:relative; }
+.message-bubble pre code { background:none; padding:0; font-size:13px; color:#e0e0e8; line-height:1.6; }
+.code-lang { position:absolute; top:8px; right:12px; font-size:11px; color:#555566; text-transform:uppercase; }
+.message-bubble ul,.message-bubble ol { padding-left:20px; margin:8px 0; }
+.message-bubble li { margin-bottom:4px; }
+.message-bubble h1,.message-bubble h2,.message-bubble h3 { color:#f0f0f5; font-weight:600; margin:16px 0 8px; }
+.message-bubble h1 { font-size:20px; }
+.message-bubble h2 { font-size:17px; }
+.message-bubble h3 { font-size:15px; }
+.message-bubble blockquote { border-left:3px solid #00ff88; padding-left:14px; color:#8888aa; margin:8px 0; }
+.message-bubble a { color:#00ff88; text-decoration:underline; }
+.message-bubble hr { border:none; border-top:1px solid rgba(255,255,255,0.08); margin:12px 0; }
+.typing-indicator { display:flex; gap:4px; padding:8px 4px; align-items:center; }
+.typing-indicator span { width:8px; height:8px; border-radius:50%; background:#00ff88; opacity:0.3; animation:dotBounce 1.4s ease-in-out infinite; }
+.typing-indicator span:nth-child(2) { animation-delay:0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay:0.4s; }
+.chat-input-area { padding:16px 24px; border-top:1px solid rgba(0,255,136,0.05); background:rgba(12,12,20,0.6); backdrop-filter:blur(10px); }
+.chat-input-wrapper { display:flex; gap:10px; align-items:flex-end; max-width:800px; margin:0 auto; }
+.chat-input-wrapper textarea { flex:1; padding:12px 16px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; font-size:14px; resize:none; min-height:44px; max-height:160px; line-height:1.5; transition:all 0.2s; }
+.chat-input-wrapper textarea:focus { border-color:rgba(0,255,136,0.4); box-shadow:0 0 0 3px rgba(0,255,136,0.1); }
+.chat-input-wrapper textarea::placeholder { color:#555566; }
+.chat-send-btn { width:44px; height:44px; border-radius:12px; background:#00ff88; color:#0a0a0f; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+.chat-send-btn:hover { background:#00cc6e; box-shadow:0 0 15px rgba(0,255,136,0.3); }
+.chat-send-btn:disabled { opacity:0.3; cursor:not-allowed; }
+.chat-send-btn svg { width:18px; height:18px; }
+.chat-powered { text-align:center; font-size:11px; color:#555566; margin-top:8px; }
+
+.analytics-page { padding:32px; overflow-y:auto; }
+.analytics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; max-width:900px; }
+.stat-card { padding:24px; border-radius:16px; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.1); backdrop-filter:blur(10px); animation:fadeInUp 0.5s ease both; }
+.stat-card:nth-child(1) { animation-delay:0.1s; }
+.stat-card:nth-child(2) { animation-delay:0.2s; }
+.stat-card:nth-child(3) { animation-delay:0.3s; }
+.stat-card:nth-child(4) { animation-delay:0.4s; }
+.stat-label { font-size:13px; color:#8888aa; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.stat-label svg { width:16px; height:16px; }
+.stat-value { font-size:32px; font-weight:800; color:#00ff88; }
+.stat-sub { font-size:12px; color:#555566; margin-top:4px; }
+
+.leaderboard-page { padding:32px; overflow-y:auto; }
+.leaderboard-table { width:100%; max-width:800px; border-collapse:collapse; }
+.leaderboard-table th { padding:12px 16px; text-align:left; font-size:12px; color:#8888aa; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid rgba(0,255,136,0.1); }
+.leaderboard-table td { padding:14px 16px; font-size:14px; border-bottom:1px solid rgba(255,255,255,0.03); }
+.leaderboard-table tr:hover td { background:rgba(255,255,255,0.02); }
+.rank-badge { width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+.rank-1 { background:linear-gradient(135deg,#ffd700,#ffaa00); color:#0a0a0f; }
+.rank-2 { background:linear-gradient(135deg,#c0c0c0,#a0a0a0); color:#0a0a0f; }
+.rank-3 { background:linear-gradient(135deg,#cd7f32,#a06020); color:#0a0a0f; }
+.rank-default { background:rgba(255,255,255,0.05); color:#8888aa; }
+
+.settings-page { padding:32px; overflow-y:auto; max-width:700px; }
+.settings-section { margin-bottom:32px; padding:24px; border-radius:16px; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.08); }
+.settings-section h3 { font-size:16px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.settings-section h3 svg { width:18px; height:18px; color:#00ff88; }
+.settings-row { display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+.settings-row:last-child { margin-bottom:0; }
+.settings-label { font-size:13px; color:#8888aa; min-width:100px; }
+.settings-value { flex:1; padding:8px 12px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; font-size:14px; }
+.settings-value:focus { border-color:rgba(0,255,136,0.4); }
+textarea.settings-value { min-height:80px; resize:vertical; }
+.btn-sm { padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; transition:all 0.2s; }
+.btn-sm-green { background:rgba(0,255,136,0.15); color:#00ff88; }
+.btn-sm-green:hover { background:rgba(0,255,136,0.25); }
+.btn-sm-red { background:rgba(255,60,60,0.15); color:#ff5555; }
+.btn-sm-red:hover { background:rgba(255,60,60,0.25); }
+.btn-sm-copy { background:rgba(255,255,255,0.05); color:#c0c0d0; padding:6px 10px; }
+.btn-sm-copy:hover { background:rgba(255,255,255,0.1); }
+.btn-sm-copy svg { width:14px; height:14px; }
+.api-key-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; background:rgba(0,0,0,0.3); margin-bottom:8px; font-family:'SF Mono','Fira Code',monospace; font-size:13px; }
+.api-key-item code { flex:1; color:#c0c0d0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.api-key-item .key-name { color:#00ff88; min-width:80px; font-family:system-ui; font-weight:500; }
+.danger-zone { border-color:rgba(255,60,60,0.15) !important; }
+.danger-zone h3 svg { color:#ff5555 !important; }
+
+.imgen-page,.vidgen-page{padding:32px;overflow-y:auto;}
+.imgen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.imgen-card{border-radius:16px;overflow:hidden;background:rgba(15,15,25,0.8);border:1px solid rgba(0,255,136,0.08);animation:fadeInUp .5s ease both;}
+.imgen-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;transition:transform .3s;}
+.imgen-card img:hover{transform:scale(1.02);}
+.imgen-card .imgen-info{padding:12px 16px;}
+.imgen-card .imgen-prompt{font-size:12px;color:#8888aa;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.imgen-card .imgen-size{font-size:11px;color:#555566;margin-top:4px;}
+.gen-controls{max-width:700px;margin-bottom:32px;}
+.gen-textarea{width:100%;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f0f5;font-size:15px;resize:none;min-height:80px;line-height:1.5;transition:all .2s;}
+.gen-textarea:focus{border-color:rgba(0,255,136,0.4);box-shadow:0 0 0 3px rgba(0,255,136,0.1);}
+.gen-textarea::placeholder{color:#555566;}
+.gen-options{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center;}
+.gen-btn{padding:12px 28px;border-radius:12px;font-size:15px;font-weight:600;color:#0a0a0f;background:#00ff88;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.gen-btn:hover{background:#00cc6e;box-shadow:0 0 20px rgba(0,255,136,0.3);}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed;}
+.gen-btn svg{width:18px;height:18px;}
+.gen-select{padding:10px 14px;border-radius:10px;font-size:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#f0f0f5;cursor:pointer;}
+.gen-select:focus{border-color:rgba(0,255,136,0.4);}
+.gen-select option{background:#12121e;color:#f0f0f5;}
+.vid-progress{max-width:700px;margin-bottom:24px;padding:20px;border-radius:14px;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.15);display:none;}
+.vid-progress.active{display:block;animation:fadeInUp .3s ease;}
+.vid-progress-bar{height:6px;border-radius:3px;background:rgba(255,255,255,0.1);overflow:hidden;margin-top:10px;}
+.vid-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#00ff88,#00cc6e);width:0%;transition:width .5s ease;animation:glow 2s ease infinite;}
+.vid-progress-text{font-size:13px;color:#8888aa;margin-top:8px;}
+.vid-result{max-width:700px;margin-bottom:24px;border-radius:16px;overflow:hidden;background:rgba(15,15,25,0.8);border:1px solid rgba(0,255,136,0.15);animation:fadeInUp .5s ease;}
+.vid-result video{width:100%;display:block;border-radius:16px 16px 0 0;background:#000;}
+.vid-result-info{padding:16px;display:flex;align-items:center;justify-content:space-between;}
+.vid-result-info .vid-prompt-text{font-size:13px;color:#8888aa;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:12px;}
+.gen-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,0.2);border-top-color:#0a0a0f;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-state{text-align:center;padding:60px 20px;color:#555566;}
+.empty-state svg{width:48px;height:48px;color:rgba(0,255,136,0.3);margin-bottom:16px;}
+.empty-state p{font-size:15px;margin-top:8px;}
+.admin-page{padding:32px;overflow-y:auto;}
+.admin-table { width:100%; max-width:100%; border-collapse:collapse; }
+.admin-table th { padding:12px 10px; text-align:left; font-size:12px; color:#8888aa; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid rgba(0,255,136,0.1); white-space:nowrap; }
+.admin-table td { padding:10px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
+.admin-table tr:hover td { background:rgba(255,255,255,0.02); }
+.admin-input { padding:4px 8px; border-radius:6px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; font-size:13px; width:80px; }
+.admin-input:focus { border-color:rgba(0,255,136,0.4); }
+.admin-save-btn { padding:4px 10px; border-radius:6px; font-size:12px; background:rgba(0,255,136,0.15); color:#00ff88; transition:all 0.2s; }
+.admin-save-btn:hover { background:rgba(0,255,136,0.25); }
+.table-wrap { overflow-x:auto; }
+
+.imgen-page,.vidgen-page { padding:32px; overflow-y:auto; }
+.imgen-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+.imgen-card { border-radius:16px; overflow:hidden; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.08); animation:fadeInUp 0.5s ease both; }
+.imgen-card img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+.imgen-card .imgen-info { padding:12px 16px; }
+.imgen-card .imgen-prompt { font-size:12px; color:#8888aa; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.imgen-card .imgen-size { font-size:11px; color:#555566; margin-top:4px; }
+.gen-controls { max-width:700px; margin-bottom:32px; }
+.gen-textarea { width:100%; padding:14px 18px; border-radius:14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; font-size:15px; resize:none; min-height:80px; line-height:1.5; transition:all 0.2s; }
+.gen-textarea:focus { border-color:rgba(0,255,136,0.4); box-shadow:0 0 0 3px rgba(0,255,136,0.1); }
+.gen-textarea::placeholder { color:#555566; }
+.gen-options { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center; }
+.gen-btn { padding:12px 28px; border-radius:12px; font-size:15px; font-weight:600; color:#0a0a0f; background:#00ff88; transition:all 0.2s; display:flex; align-items:center; gap:8px; }
+.gen-btn:hover { background:#00cc6e; box-shadow:0 0 20px rgba(0,255,136,0.3); }
+.gen-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.gen-btn svg { width:18px; height:18px; }
+.gen-select { padding:10px 14px; border-radius:10px; font-size:14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; cursor:pointer; }
+.gen-select:focus { border-color:rgba(0,255,136,0.4); }
+.gen-select option { background:#12121e; color:#f0f0f5; }
+.vid-progress { max-width:700px; margin-bottom:24px; padding:20px; border-radius:14px; background:rgba(0,255,136,0.05); border:1px solid rgba(0,255,136,0.15); display:none; }
+.vid-progress.active { display:block; animation:fadeInUp 0.3s ease; }
+.vid-progress-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.1); overflow:hidden; margin-top:10px; }
+.vid-progress-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#00ff88,#00cc6e); width:0%; transition:width 0.5s ease; animation:glow 2s ease infinite; }
+.vid-progress-text { font-size:13px; color:#8888aa; margin-top:8px; }
+.vid-result { max-width:700px; margin-bottom:24px; border-radius:16px; overflow:hidden; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.15); animation:fadeInUp 0.5s ease; }
+.vid-result video { width:100%; display:block; border-radius:16px 16px 0 0; }
+.vid-result-info { padding:16px; display:flex; align-items:center; justify-content:space-between; }
+.vid-result-info .vid-prompt { font-size:13px; color:#8888aa; flex:1; }
+.vid-result-info a { color:#00ff88; font-size:13px; font-weight:500; }
+.gen-spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(0,0,0,0.2); border-top-color:#0a0a0f; border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.empty-state { text-align:center; padding:60px 20px; color:#555566; }
+.empty-state svg { width:48px; height:48px; color:rgba(0,255,136,0.3); margin-bottom:16px; }
+.empty-state p { font-size:15px; margin-top:8px; }
+.imagegen-page,.videogen-page { padding:32px; overflow-y:auto; }
+.gen-card { padding:28px; border-radius:16px; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.08); margin-bottom:24px; }
+.gen-card h3 { font-size:16px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.gen-card h3 svg { width:18px; height:18px; color:#00ff88; }
+.gen-input { width:100%; padding:12px 16px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; font-size:14px; transition:all 0.2s; resize:none; min-height:48px; }
+.gen-input:focus { border-color:rgba(0,255,136,0.4); box-shadow:0 0 0 3px rgba(0,255,136,0.1); }
+.gen-input::placeholder { color:#555566; }
+.gen-options { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; align-items:center; }
+.gen-select { padding:8px 14px; border-radius:8px; font-size:13px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0f0f5; cursor:pointer; }
+.gen-select:focus { border-color:rgba(0,255,136,0.4); }
+.gen-select option { background:#12121e; color:#f0f0f5; }
+.gen-btn { padding:10px 24px; border-radius:10px; font-size:14px; font-weight:600; color:#0a0a0f; background:#00ff88; display:inline-flex; align-items:center; gap:8px; transition:all 0.2s; margin-top:16px; }
+.gen-btn:hover { background:#00cc6e; box-shadow:0 0 20px rgba(0,255,136,0.3); }
+.gen-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.gen-btn svg { width:16px; height:16px; }
+.gen-output { margin-top:24px; min-height:200px; }
+.gen-image-wrap { border-radius:16px; overflow:hidden; border:1px solid rgba(0,255,136,0.1); display:inline-block; max-width:100%; animation:fadeIn 0.5s ease; }
+.gen-image-wrap img { max-width:100%; max-height:500px; display:block; }
+.gen-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; color:#8888aa; }
+.gen-loading .spinner { width:40px; height:40px; border:3px solid rgba(0,255,136,0.1); border-top-color:#00ff88; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.gen-loading p { font-size:14px; }
+.video-status { padding:20px; border-radius:12px; background:rgba(15,15,25,0.8); border:1px solid rgba(0,255,136,0.1); margin-top:16px; }
+.video-status-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.05); overflow:hidden; margin-top:12px; }
+.video-status-bar-fill { height:100%; background:linear-gradient(90deg,#00ff88,#00cc6e); border-radius:2px; transition:width 0.5s ease; animation:pulse 1.5s ease infinite; }
+.video-status-text { font-size:13px; color:#8888aa; margin-top:8px; }
+.gen-video-wrap { border-radius:16px; overflow:hidden; border:1px solid rgba(0,255,136,0.1); margin-top:16px; animation:fadeIn 0.5s ease; }
+.gen-video-wrap video { max-width:100%; max-height:500px; display:block; width:100%; }
+.gen-history { margin-top:24px; }
+.gen-history h4 { font-size:14px; font-weight:600; color:#8888aa; margin-bottom:12px; text-transform:uppercase; letter-spacing:1px; }
+.gen-history-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+.gen-history-item { border-radius:12px; overflow:hidden; border:1px solid rgba(0,255,136,0.08); cursor:pointer; transition:all 0.2s; background:rgba(15,15,25,0.6); }
+.gen-history-item:hover { border-color:rgba(0,255,136,0.3); transform:translateY(-2px); }
+.gen-history-item img,.gen-history-item video { width:100%; height:150px; object-fit:cover; display:block; }
+.gen-history-item p { padding:8px 10px; font-size:11px; color:#8888aa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gen-empty { text-align:center; padding:60px 20px; color:#555566; }
+.gen-empty svg { width:48px; height:48px; color:rgba(0,255,136,0.2); margin-bottom:16px; }
+.gen-empty p { font-size:14px; }
+@media (max-width:768px) {
+  .sidebar { position:fixed; left:-280px; top:0; z-index:50; transition:left 0.3s; }
+  .sidebar.open { left:0; }
+  .sidebar-toggle { display:flex; }
+  .sidebar-overlay.active { display:block; }
+  .top-header { padding-left:50px; }
+  .hero h1 { font-size:32px; }
+  .hero p { font-size:16px; }
+  .landing-nav { padding:12px 16px; }
+  .features,.testimonials { padding:60px 16px; }
+  .founders-section { padding:60px 16px; }
+  .founders-grid { grid-template-columns:1fr; }
+  .donate-upi-list { gap:8px; }
+  .landing-footer { padding:24px 16px; flex-direction:column; text-align:center; }
+  .mode-pills { display:none; }
+  .header-controls { gap:6px; }
+  .header-select { font-size:12px; padding:4px 8px; }
+  .god-mode-label { display:none; }
+  .chat-input-area { padding:12px 16px; }
+  .chat-messages { padding:16px; }
+  .message-bubble { padding:10px 14px; font-size:13px; }
+  .imgen-page,.vidgen-page{padding:20px 16px;}
+  .imgen-grid{grid-template-columns:1fr;}
+  .gen-options{gap:8px;}
+  .gen-select{font-size:12px;padding:8px 10px;}
+  .analytics-page,.leaderboard-page,.settings-page,.admin-page,.imagegen-page,.videogen-page { padding:20px 16px; }
+}
+
+/* QR Code styles */
+.donate-qr-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:400px; margin:20px auto; }
+.donate-qr-card { padding:20px; border-radius:16px; background:rgba(0,0,0,0.3); border:1px solid rgba(0,255,136,0.1); text-align:center; transition:all 0.3s; }
+.donate-qr-card:hover { border-color:rgba(0,255,136,0.3); transform:translateY(-2px); }
+.donate-qr-card img { width:140px; height:140px; border-radius:12px; margin:0 auto 12px; display:block; background:white; }
+.donate-qr-name { font-size:14px; font-weight:600; color:#00ff88; margin-bottom:4px; }
+.donate-qr-upi { font-size:11px; color:#8888aa; font-family:'SF Mono','Fira Code',monospace; word-break:break-all; }
+.donate-qr-pay { display:inline-block; margin-top:10px; padding:6px 16px; border-radius:8px; font-size:12px; font-weight:600; background:rgba(0,255,136,0.15); color:#00ff88; text-decoration:none; transition:all 0.2s; }
+.donate-qr-pay:hover { background:rgba(0,255,136,0.25); text-decoration:none; }
+
+/* Instagram section */
+.instagram-section { padding:60px 40px; position:relative; z-index:1; }
+.instagram-section .instagram-card { max-width:500px; margin:0 auto; padding:40px; border-radius:20px; background:linear-gradient(135deg, rgba(225,48,108,0.1), rgba(131,58,180,0.08)); border:1px solid rgba(225,48,108,0.2); text-align:center; animation:fadeInUp 1s ease; }
+.instagram-section .insta-icon { width:64px; height:64px; border-radius:16px; background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.instagram-section .insta-icon svg { width:32px; height:32px; color:white; }
+.instagram-section h3 { font-size:24px; font-weight:700; margin-bottom:8px; background:linear-gradient(135deg,#f09433,#dc2743,#bc1888); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.instagram-section p { font-size:14px; color:#8888aa; margin-bottom:20px; line-height:1.6; }
+.instagram-section .insta-btn { display:inline-flex; align-items:center; gap:8px; padding:12px 28px; border-radius:12px; font-size:15px; font-weight:600; color:white; background:linear-gradient(135deg,#f09433,#dc2743,#bc1888); transition:all 0.3s; text-decoration:none; box-shadow:0 0 20px rgba(225,48,108,0.3); }
+.instagram-section .insta-btn:hover { transform:translateY(-2px); box-shadow:0 0 30px rgba(225,48,108,0.5); text-decoration:none; }
+.instagram-section .insta-handle { margin-top:16px; font-size:13px; color:#8888aa; }
+.instagram-section .insta-handle a { color:#e1306c; font-weight:600; text-decoration:none; }
+.instagram-section .insta-handle a:hover { text-decoration:underline; }
+.instagram-section .insta-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+.instagram-section .insta-secondary-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 24px; border-radius:10px; font-size:14px; font-weight:500; color:#c0c0d0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); transition:all 0.3s; text-decoration:none; }
+.instagram-section .insta-secondary-btn:hover { border-color:rgba(225,48,108,0.3); color:#e1306c; text-decoration:none; }
+
+/* Footer social icons */
+.footer-social { display:flex; gap:12px; margin-top:12px; }
+.footer-social a { width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; transition:all 0.2s; color:#8888aa; }
+.footer-social a:hover { background:rgba(0,255,136,0.1); border-color:rgba(0,255,136,0.2); color:#00ff88; text-decoration:none; }
+.footer-social a.instagram:hover { background:rgba(225,48,108,0.1); border-color:rgba(225,48,108,0.2); color:#e1306c; }
+.footer-social svg { width:16px; height:16px; }
+
+/* Auth modal enhancement */
+.auth-error { padding:10px 14px; border-radius:8px; background:rgba(255,60,60,0.1); border:1px solid rgba(255,60,60,0.2); color:#ff5555; font-size:13px; margin-bottom:16px; display:none; }
+.auth-error.show { display:block; }
+.form-loading { display:inline-flex; align-items:center; gap:8px; }
+.form-loading .spinner { width:16px; height:16px; border:2px solid rgba(0,0,0,0.2); border-top-color:#0a0a0f; border-radius:50%; animation:spin 0.8s linear infinite; }
+
+@media (max-width:768px) {
+  .donate-qr-grid { grid-template-columns:1fr; max-width:260px; }
+  .instagram-section { padding:40px 16px; }
+  .instagram-section .instagram-card { padding:28px; }
+  .instagram-section .insta-cta { flex-direction:column; align-items:center; }
+}
+</style>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal" style="width:440px;">
+    <button class="modal-close" onclick="closeAuth()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <h2 style="color:#00ff88;">GodMind AI</h2>
+    <p class="modal-sub" id="authSubtitle">Welcome back. Sign in to continue.</p>
+    <div class="auth-error" id="authError"></div>
+    <form id="authForm" onsubmit="handleAuthSubmit(event)">
+      <div class="form-group" id="nameGroup" style="display:none;">
+        <label>Name</label>
+        <input type="text" class="form-input" id="authName" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" class="form-input" id="authEmail" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-input" id="authPassword" placeholder="Your password" required minlength="4">
+      </div>
+      <button type="submit" class="btn-submit" id="authSubmitBtn">Sign In</button>
+    </form>
+    <div class="modal-toggle">
+      <span id="authToggleText">Don't have an account?</span>
+      <a onclick="toggleAuthMode()">Sign up</a>
+    </div>
+    <div style="margin-top:16px;padding:12px;border-radius:10px;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.1);">
+      <p style="font-size:12px;color:#8888aa;text-align:center;">Register with any email & password to explore the full platform. Everything is free!</p>
+    </div>
+  </div>
+</div>
+
+<div id="landing">
+  <nav class="landing-nav">
+    <div class="landing-logo">
+      <svg viewBox="0 0 32 32" fill="none"><path d="M16 2L2 10l14 8 14-8-14-8zM2 22l14 8 14-8M2 16l14 8 14-8" stroke="#00ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      God<span>Mind</span> AI
+    </div>
+    <div class="landing-nav-btns">
+      <button class="btn-ghost" onclick="openAuth('login')">Sign In</button>
+      <button class="btn-primary" onclick="openAuth('register')">Get Started Free</button>
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Everything Free &middot; No Limits
+    </div>
+    <h1>The AI That Thinks<br>Smarter Than You</h1>
+    <p>Harness multi-model intelligence with God Mode, AutoTune engine, and prompt transformers. One platform. Zero cost. Infinite possibilities.</p>
+    <div class="hero-btns">
+      <button class="btn-hero btn-hero-primary" onclick="openAuth('register')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Start Free Now
+      </button>
+      <button class="btn-hero btn-hero-secondary" onclick="openAuth('login')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Sign In
+      </button>
+    </div>
+  </section>
+  <section class="features">
+    <div class="section-title">Features</div>
+    <div class="section-heading">Built for the Future of Intelligence</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 014 4v1a4 4 0 01-8 0V6a4 4 0 014-4zM2 22c0-4.97 4.03-9 9-9h2c4.97 0 9 4.03 9 9"/><circle cx="20" cy="10" r="2"/></svg></div>
+        <h3>Multi-Model Intelligence</h3>
+        <p>Choose from GodMind V2, Pro, and Ultra models. Each optimized for different tasks - from quick answers to deep reasoning.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4"/></svg></div>
+        <h3>AutoTune Engine</h3>
+        <p>Automatically optimizes responses for precision, creativity, or balance. Your AI adapts to how you think.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <h3>God Mode</h3>
+        <p>Unlock unrestricted AI potential. God Mode removes all limitations and delivers the most powerful, insightful responses.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4a2 2 0 012-2h8.5L20 7.5V20a2 2 0 01-2 2H6a2 2 0 01-2-2v-3"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h6l2-3 2 6 2-3h6"/></svg></div>
+        <h3>Prompt Transformers</h3>
+        <p>Advanced persona system with CEO, Hacker, and Romantic modes. Transform your AI's personality and expertise.</p>
+      </div>
+    </div>
+  </section>
+  <section class="testimonials">
+    <div class="section-title">Testimonials</div>
+    <div class="section-heading">Trusted by Thousands</div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="testimonial-text">"GodMind AI completely changed how I approach coding. The God Mode feature is absolutely insane - it catches bugs I would have spent hours finding."</div>
+        <div class="testimonial-author"><div class="testimonial-avatar">A</div><div><div class="testimonial-name">Alex Chen</div><div class="testimonial-role">Senior Software Engineer</div></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="testimonial-text">"The fact that this is completely free blows my mind. I've used premium AI tools that don't come close to GodMind's response quality."</div>
+        <div class="testimonial-author"><div class="testimonial-avatar">S</div><div><div class="testimonial-name">Sarah Miller</div><div class="testimonial-role">Startup Founder</div></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="testimonial-text">"The Hacker persona is brilliant for security research. Combined with aggressive mode, I get penetration-testing grade analysis instantly."</div>
+        <div class="testimonial-author"><div class="testimonial-avatar">M</div><div><div class="testimonial-name">Marcus Rodriguez</div><div class="testimonial-role">Security Analyst</div></div></div>
+      </div>
+    </div>
+  </section>
+  <section class="founders-section">
+    <div class="founders-heading">Meet The Team</div>
+    <div class="founders-title">Co-Founders & Visionaries</div>
+    <div class="founders-grid">
+      <div class="founder-card">
+        <div class="founder-avatar">DG</div>
+        <div class="founder-name">Deepanshu Gaur</div>
+        <div class="founder-role">Co-Founder & Lead Developer</div>
+        <div class="founder-details">
+          <div>UPI: <a href="upi://pay?pa=gaur-deepanshu@ptyes" onclick="copyText('gaur-deepanshu@ptyes');return false;">gaur-deepanshu@ptyes</a></div>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;justify-content:center;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=upi://pay?pa=gaur-deepanshu@ptyes" alt="UPI QR" style="width:100px;height:100px;border-radius:10px;border:1px solid rgba(0,255,136,0.2);">
+          </div>
+          <div style="margin-top:10px;display:flex;gap:12px;justify-content:center;">
+            <a href="https://instagram.com/deepanshu_rajput._7" target="_blank" style="color:#8888aa;display:inline-flex;align-items:center;gap:4px;font-size:12px;transition:color 0.2s;" onmouseover="this.style.color='#e1306c'" onmouseout="this.style.color='#8888aa'">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+              @deepanshu_rajput._7
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="founder-card">
+        <div class="founder-avatar">AK</div>
+        <div class="founder-name">Aaron Kotchade</div>
+        <div class="founder-role">Co-Founder & Strategy Head</div>
+        <div class="founder-details">
+          <div>UPI: <a href="upi://pay?pa=kotchadeaaron-1@okaxis" onclick="copyText('kotchadeaaron-1@okaxis');return false;">kotchadeaaron-1@okaxis</a></div>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;justify-content:center;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=upi://pay?pa=kotchadeaaron-1@okaxis" alt="UPI QR" style="width:100px;height:100px;border-radius:10px;border:1px solid rgba(0,255,136,0.2);">
+          </div>
+          <div style="margin-top:10px;display:flex;gap:12px;justify-content:center;">
+            <a href="https://instagram.com/aaron_kotchade_" target="_blank" style="color:#8888aa;display:inline-flex;align-items:center;gap:4px;font-size:12px;transition:color 0.2s;" onmouseover="this.style.color='#e1306c'" onmouseout="this.style.color='#8888aa'">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+              @aaron_kotchade_
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="donate-section">
+      <h3>Support GodMind AI <span class="donate-heart"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> Donate</span></h3>
+      <p>Help us keep GodMind AI free and build even more powerful features. Scan the QR code or copy the UPI ID to donate.</p>
+      <div class="donate-qr-grid">
+        <div class="donate-qr-card">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi%3A%2F%2Fpay%3Fpa%3Dgaur-deepanshu%40ptyes%26pn%3DDeepanshu%20Gaur" alt="Deepanshu Gaur UPI QR" />
+          <div class="donate-qr-name">Deepanshu Gaur</div>
+          <div class="donate-qr-upi">gaur-deepanshu@ptyes</div>
+          <button class="donate-qr-pay" onclick="copyText('gaur-deepanshu@ptyes')">Copy UPI ID</button>
+        </div>
+        <div class="donate-qr-card">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi%3A%2F%2Fpay%3Fpa%3Dkotchadeaaron-1%40okaxis%26pn%3DAaron%20Kotchade" alt="Aaron Kotchade UPI QR" />
+          <div class="donate-qr-name">Aaron Kotchade</div>
+          <div class="donate-qr-upi">kotchadeaaron-1@okaxis</div>
+          <button class="donate-qr-pay" onclick="copyText('kotchadeaaron-1@okaxis')">Copy UPI ID</button>
+        </div>
+      </div>
+      <div class="donate-contact">Contact: <a href="tel:+918698387604">+91 8698387604</a></div>
+    </div>
+  </section>
+
+  <section class="instagram-section">
+    <div class="instagram-card">
+      <div class="insta-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </div>
+      <h3>Follow Us on Instagram</h3>
+      <p>Stay connected with the founders! Follow us for AI tips, updates, behind-the-scenes content, and exclusive feature announcements.</p>
+      <div class="insta-cta" style="margin-bottom:16px;">
+        <a href="https://instagram.com/aaron_kotchade_" target="_blank" rel="noopener" class="insta-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          @aaron_kotchade_
+        </a>
+        <a href="https://instagram.com/deepanshu_rajput._7" target="_blank" rel="noopener" class="insta-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          @deepanshu_rajput._7
+        </a>
+      </div>
+      <div class="insta-cta">
+        <a href="https://instagram.com/aaron_kotchade_" target="_blank" rel="noopener" class="insta-secondary-btn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          DM Us Your Ideas
+        </a>
+        <a href="https://instagram.com/deepanshu_rajput._7" target="_blank" rel="noopener" class="insta-secondary-btn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Share Your Creations
+        </a>
+      </div>
+      <div class="insta-handle" style="display:flex;gap:16px;justify-content:center;">
+        <a href="https://instagram.com/aaron_kotchade_" target="_blank" rel="noopener">@aaron_kotchade_</a>
+        <span style="color:#333;">|</span>
+        <a href="https://instagram.com/deepanshu_rajput._7" target="_blank" rel="noopener">@deepanshu_rajput._7</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div>
+      <div class="footer-links"><a href="#" onclick="openAuth('login');return false;">Sign In</a><a href="#" onclick="openAuth('register');return false;">Get Started</a><a href="#" onclick="return false;">Documentation</a><a href="#" onclick="return false;">API</a></div>
+      <div class="footer-social">
+        <a href="https://instagram.com/aaron_kotchade_" target="_blank" rel="noopener" class="instagram" title="Aaron (@aaron_kotchade_)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="https://instagram.com/deepanshu_rajput._7" target="_blank" rel="noopener" class="instagram" title="Deepanshu (@deepanshu_rajput._7)" style="background:rgba(225,48,108,0.05);border-color:rgba(225,48,108,0.15);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="#" title="Twitter/X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733-16z"/><path d="M4 20l6.768-6.768m2.46-2.46l6.772-6.772"/></svg></a>
+        <a href="#" title="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 00-1.64-2.32c0 0-1.31-.09-2.7 1.3a9.35 9.35 0 00-5 0C8.35 1.36 7.04 1.45 7.04 1.45A5.07 5.07 0 004 4.77a5.44 5.44 0 00-.35 3.01C1.56 8.16 4.86 9.35 8 9.7a3.37 3.37 0 00-.94 2.61V19"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-copy">&copy; 2025 GodMind AI. Founded by Deepanshu Gaur &amp; Aaron Kotchade. All rights reserved.</div>
+  </footer>
+</div>
+
+
+<div id="app">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <svg viewBox="0 0 32 32" fill="none"><path d="M16 2L2 10l14 8 14-8-14-8zM2 22l14 8 14-8M2 16l14 8 14-8" stroke="#00ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="sidebar-logo">God<span>Mind</span></div>
+    </div>
+    <button class="sidebar-new-chat" onclick="newChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      New Chat
+    </button>
+    <div class="sidebar-section-label">Recent Chats</div>
+    <div class="sidebar-chats" id="chatHistory"><div style="padding:16px;text-align:center;color:#555566;font-size:13px;">No chats yet</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-page="chat" onclick="switchPage('chat')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chat</div>
+      <div class="nav-item" data-page="analytics" onclick="switchPage('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Analytics</div>
+      <div class="nav-item" data-page="leaderboard" onclick="switchPage('leaderboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10l1 7H6L7 4zM6 11h12l-1.5 6h-9L6 11z"/></svg>Leaderboard</div>
+      <div class="nav-item" data-page="settings" onclick="switchPage('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</div>
+      <div class="nav-item" data-page="imagegen" onclick="switchPage('imagegen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image Gen</div>
+      <div class="nav-item" data-page="videogen" onclick="switchPage('videogen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Video Gen</div>
+      <div class="nav-item" data-page="admin" onclick="switchPage('admin')" id="adminNavItem" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin Panel</div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar">?</div>
+      <div class="user-info"><div class="user-name" id="sidebarName">User</div><div class="user-credits" id="sidebarCredits">&infin; Unlimited</div></div>
+      <button class="user-signout" onclick="handleSignOut()" title="Logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </div>
+  </aside>
+  <div class="main-wrapper">
+    <header class="top-header">
+      <div class="header-title" id="headerTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chat</div>
+      <div class="header-controls">
+        <select class="header-select" id="modelSelect" title="Model"><option value="godmind-v2">GodMind V2</option><option value="godmind-pro">GodMind Pro</option><option value="godmind-ultra">GodMind Ultra</option></select>
+        <div class="mode-pills" id="modePills">
+          <div class="mode-pill" data-mode="precise" onclick="setMode('precise')">Precise</div>
+          <div class="mode-pill active" data-mode="balanced" onclick="setMode('balanced')">Balanced</div>
+          <div class="mode-pill" data-mode="creative" onclick="setMode('creative')">Creative</div>
+          <div class="mode-pill" data-mode="aggressive" onclick="setMode('aggressive')">Aggressive</div>
+        </div>
+        <div class="god-mode-toggle" id="godModeToggle" onclick="toggleGodMode()"><span class="god-mode-label">GOD MODE</span><div class="toggle-switch"></div></div>
+        <select class="header-select" id="personaSelect" title="Persona"><option value="default">Default</option><option value="ceo">CEO</option><option value="hacker">Hacker</option><option value="romantic">Romantic</option></select>
+        <span class="free-badge">FREE</span>
+      </div>
+    </header>
+
+    <div class="page active" id="page-chat">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-welcome" id="chatWelcome">
+          <div class="chat-welcome-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+          <h2>How can I help you today?</h2>
+          <p>Ask me anything. I'm running in <span id="welcomeMode">Balanced</span> mode.</p>
+          <div class="suggestion-chips" id="suggestionChips"></div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <div class="chat-input-wrapper">
+          <textarea id="chatInput" rows="1" placeholder="Type your message..." onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+        </div>
+        <div class="chat-powered">Powered by GodMind AI &middot; Everything Free</div>
+      </div>
+    </div>
+
+
+    <div class="page" id="page-analytics">
+      <div class="analytics-page">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:24px;">Analytics Overview</h2>
+        <div class="analytics-grid">
+          <div class="stat-card"><div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Total Users</div><div class="stat-value" id="statUsers">-</div><div class="stat-sub">Registered accounts</div></div>
+          <div class="stat-card"><div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Total Chats</div><div class="stat-value" id="statChats">-</div><div class="stat-sub">Conversations created</div></div>
+          <div class="stat-card"><div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Total Messages</div><div class="stat-value" id="statMessages">-</div><div class="stat-sub">Messages exchanged</div></div>
+          <div class="stat-card"><div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>API Status</div><div class="stat-value" style="font-size:24px;" id="statStatus">Checking...</div><div class="stat-sub" id="statStatusSub">Verifying connectivity</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-leaderboard">
+      <div class="leaderboard-page">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:24px;">Leaderboard</h2>
+        <div class="table-wrap">
+          <table class="leaderboard-table"><thead><tr><th>Rank</th><th>User</th><th>Chats</th><th>Tokens</th><th>Plan</th></tr></thead><tbody id="leaderboardBody"><tr><td colspan="5" style="text-align:center;color:#555566;padding:40px;">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-settings">
+      <div class="settings-page">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:24px;">Settings</h2>
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</h3>
+          <div class="settings-row"><div class="settings-label">Name</div><input class="settings-value" id="settingsName" placeholder="Your name"></div>
+          <div class="settings-row"><div class="settings-label">Email</div><input class="settings-value" id="settingsEmail" readonly style="opacity:0.6;cursor:not-allowed;"></div>
+          <div class="settings-row"><div class="settings-label">Bio</div><textarea class="settings-value" id="settingsBio" placeholder="Tell us about yourself..."></textarea></div>
+          <div class="settings-row" style="justify-content:flex-end;"><button class="btn-sm btn-sm-green" onclick="saveProfile()">Save Profile</button></div>
+        </div>
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>AI Preferences</h3>
+          <div class="settings-row"><div class="settings-label">Default Mode</div><select class="settings-value" id="settingsMode"><option value="precise">Precise</option><option value="balanced">Balanced</option><option value="creative">Creative</option><option value="aggressive">Aggressive</option></select></div>
+          <div class="settings-row"><div class="settings-label">Default Persona</div><select class="settings-value" id="settingsPersona"><option value="default">Default</option><option value="ceo">CEO</option><option value="hacker">Hacker</option><option value="romantic">Romantic</option></select></div>
+        </div>
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><path d="M1 10h22"/></svg>Account</h3>
+          <div class="settings-row"><div class="settings-label">Credits</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-value" style="font-size:20px;">&infin;</span><span class="free-badge">Unlimited &middot; Free Forever</span></div></div>
+          <div class="settings-row"><div class="settings-label">Referral Code</div><div style="display:flex;align-items:center;gap:8px;flex:1;"><input class="settings-value" id="settingsReferralCode" readonly style="flex:1;font-family:'SF Mono','Fira Code',monospace;"><button class="btn-sm btn-sm-copy" onclick="copyReferralCode()" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div></div>
+          <div class="settings-row"><div class="settings-label">Referrals</div><span id="settingsReferralCount" style="color:#00ff88;font-weight:600;">0</span></div>
+        </div>
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>API Keys</h3>
+          <div id="apiKeysList"></div>
+          <div style="margin-top:12px;"><button class="btn-sm btn-sm-green" onclick="createApiKey()">+ Create New Key</button></div>
+        </div>
+        <div class="settings-section danger-zone">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger Zone</h3>
+          <p style="font-size:13px;color:#8888aa;margin-bottom:12px;">Permanently delete all your chat history. This action cannot be undone.</p>
+          <button class="btn-sm btn-sm-red" onclick="clearAllChats()">Clear All Chats</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-admin">
+      <div class="admin-page">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:24px;">Admin Panel</h2>
+        <div class="analytics-grid" style="margin-bottom:24px;">
+          <div class="stat-card"><div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Total Users</div><div class="stat-value" id="adminStatUsers">-</div><div class="stat-sub">Registered accounts</div></div>
+          <div class="stat-card"><div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Total Chats</div><div class="stat-value" id="adminStatChats">-</div><div class="stat-sub">Conversations</div></div>
+          <div class="stat-card"><div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Total Messages</div><div class="stat-value" id="adminStatMessages">-</div><div class="stat-sub">Messages sent</div></div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <input type="text" id="adminSearch" class="form-input" placeholder="Search users by name or email..." style="max-width:400px;" oninput="filterAdminTable()">
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table"><thead><tr><th>Email</th><th>Name</th><th>Plan</th><th>Role</th><th>Credits</th><th>Created</th><th></th></tr></thead><tbody id="adminBody"><tr><td colspan="7" style="text-align:center;color:#555566;padding:40px;">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-imagegen">
+      <div class="imagegen-page">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:24px;">AI Image Generation</h2>
+        <div class="gen-card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Create Image from Text</h3>
+          <textarea class="gen-input" id="imagePrompt" rows="3" placeholder="Describe the image you want to create... (e.g., 'A futuristic city at sunset with flying cars, cyberpunk style, highly detailed')"></textarea>
+          <div class="gen-options">
+            <select class="gen-select" id="imageSize">
+              <option value="1024x1024">Square (1024x1024)</option>
+              <option value="1344x768">Landscape (1344x768)</option>
+              <option value="768x1344">Portrait (768x1344)</option>
+              <option value="1152x864">Wide (1152x864)</option>
+              <option value="864x1152">Tall (864x1152)</option>
+            </select>
+            <span class="free-badge">FREE</span>
+          </div>
+          <button class="gen-btn" id="imageGenBtn" onclick="generateImage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Generate Image</button>
+        </div>
+        <div class="gen-output" id="imageOutput">
+          <div class="gen-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>Your generated images will appear here</p></div>
+        </div>
+        <div class="gen-history" id="imageHistory" style="display:none;">
+          <h4>Recent Generations</h4>
+          <div class="gen-history-grid" id="imageHistoryGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-videogen">
+      <div class="videogen-page">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:24px;">AI Video Generation</h2>
+        <div class="gen-card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Create Video from Text</h3>
+          <textarea class="gen-input" id="videoPrompt" rows="3" placeholder="Describe the video you want to create... (e.g., 'A cat playing with a ball of yarn in a cozy room')"></textarea>
+          <div class="gen-options">
+            <select class="gen-select" id="videoQuality">
+              <option value="speed">Speed (faster)</option>
+              <option value="quality">Quality (better)</option>
+            </select>
+            <select class="gen-select" id="videoDuration">
+              <option value="5">5 seconds</option>
+              <option value="10">10 seconds</option>
+            </select>
+            <span class="free-badge">FREE</span>
+          </div>
+          <button class="gen-btn" id="videoGenBtn" onclick="createVideo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Generate Video</button>
+        </div>
+        <div class="gen-output" id="videoOutput">
+          <div class="gen-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><p>Your generated videos will appear here</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var currentUser=null;
+var currentPage='chat';
+var currentMode='balanced';
+var godModeActive=false;
+var currentChatId=null;
+var currentMessages=[];
+var isSending=false;
+var imageHistoryList=[];
+var videoPollIntervals={};
+var allAdminUsers=[];
+var suggestions=['Explain quantum computing','Write a Python web scraper','Design a REST API architecture','Create a React component library','Debug this code for me','Summarize this research paper','Generate unit tests','Optimize SQL query performance','Build a CI/CD pipeline','Explain machine learning models'];
+
+function apiFetch(url,options,retryCount){options=options||{};retryCount=retryCount||0;var token=localStorage.getItem('token');var headers={'Content-Type':'application/json'};if(options.headers){for(var k in options.headers)headers[k]=options.headers[k];}if(token)headers['Authorization']='Bearer '+token;return fetch(url,{method:options.method||'GET',headers:headers,body:options.body?JSON.stringify(options.body):undefined}).then(function(r){if(!r.ok)throw new Error('Server error: '+r.status);var ct=r.headers.get('content-type')||'';if(ct.indexOf('application/json')===-1)throw new Error('Server is starting up, please try again...');return r.json();}).then(function(data){if(data.error)throw new Error(data.error);return data;}).catch(function(err){if(retryCount<2&&err.message.indexOf('starting up')!==-1){return new Promise(function(resolve){setTimeout(function(){resolve(apiFetch(url,options,retryCount+1));},2000);});}throw err;});}
+
+function showToast(message,type){type=type||'info';var c=document.getElementById('toast-container');var t=document.createElement('div');t.className='toast '+type;var icons={success:'&#10003;',error:'&#10007;',info:'&#9432;'};t.innerHTML='<span>'+(icons[type]||'')+'</span> '+message;c.appendChild(t);setTimeout(function(){t.classList.add('hiding');setTimeout(function(){t.remove();},300);},3000);}
+
+function formatDate(d){if(!d)return'-';var dt=new Date(d);return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function getInitial(n){return(n||'?').charAt(0).toUpperCase();}
+
+function renderMarkdown(text){if(!text)return '';text=text.replace(/```(\w*)\n([\s\S]*?)```/g,function(_,lang,code){var lbl=lang?'<div class="code-lang">'+lang+'</div>':'';return '<pre>'+lbl+'<code>'+escHtml(code.trim())+'</code></pre>';});text=text.replace(/`([^`]+)`/g,'<code>$1</code>');text=text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');text=text.replace(/\*([^*]+)\*/g,'<em>$1</em>');text=text.replace(/^### (.+)$/gm,'<h3>$1</h3>');text=text.replace(/^## (.+)$/gm,'<h2>$1</h2>');text=text.replace(/^# (.+)$/gm,'<h1>$1</h1>');text=text.replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>');text=text.replace(/^---$/gm,'<hr>');text=text.replace(/^[\-\*] (.+)$/gm,'<li>$1</li>');text=text.replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>');text=text.replace(/\n\n/g,'</p><p>');text='<p>'+text+'</p>';text=text.replace(/<p>\s*<\/p>/g,'');text=text.replace(/<p>\s*(<h[123]>)/g,'$1');text=text.replace(/(<\/h[123]>)\s*<\/p>/g,'$1');text=text.replace(/<p>\s*(<pre>)/g,'$1');text=text.replace(/(<\/pre>)\s*<\/p>/g,'$1');text=text.replace(/<p>\s*(<ul>)/g,'$1');text=text.replace(/(<\/ul>)\s*<\/p>/g,'$1');text=text.replace(/<p>\s*(<blockquote>)/g,'$1');text=text.replace(/(<\/blockquote>)\s*<\/p>/g,'$1');return text;}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+var authMode='login';
+
+function openAuth(mode){authMode=mode||'login';var modal=document.getElementById('authModal');var nameGroup=document.getElementById('nameGroup');var subtitle=document.getElementById('authSubtitle');var toggleText=document.getElementById('authToggleText');var submitBtn=document.getElementById('authSubmitBtn');document.getElementById('authError').className='auth-error';document.getElementById('authError').textContent='';document.getElementById('authForm').reset();if(authMode==='register'){nameGroup.style.display='block';subtitle.textContent='Create your account to get started.';toggleText.textContent='Already have an account?';submitBtn.textContent='Create Account';}else{nameGroup.style.display='none';subtitle.textContent='Welcome back. Sign in to continue.';toggleText.textContent="Don't have an account?";submitBtn.textContent='Sign In';}modal.classList.add('active');}
+
+function closeAuth(){document.getElementById('authModal').classList.remove('active');}
+
+function toggleAuthMode(){openAuth(authMode==='login'?'register':'login');}
+
+function handleAuthSubmit(e){e.preventDefault();var email=document.getElementById('authEmail').value.trim();var password=document.getElementById('authPassword').value;var name=document.getElementById('authName').value.trim();var errEl=document.getElementById('authError');var btn=document.getElementById('authSubmitBtn');if(!email||!password){errEl.textContent='Email and password are required.';errEl.className='auth-error show';return;}errEl.className='auth-error';btn.disabled=true;btn.innerHTML='<span class="form-loading"><span class="spinner"></span>Processing...</span>';var url=authMode==='register'?'/api/auth/register':'/api/auth/login';var body=authMode==='register'?{email,password,name}:email&&password?{email,password}:{};fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();}).then(function(data){if(data.error){errEl.textContent=data.error;errEl.className='auth-error show';btn.disabled=false;btn.textContent=authMode==='register'?'Create Account':'Sign In';return;}localStorage.setItem('token',data.token);localStorage.setItem('user',JSON.stringify(data));currentUser={id:data.id,name:data.name,email:data.email,role:data.role,credits:data.credits||9999,plan:data.plan||'pro',token:data.token};closeAuth();showApp();showToast('Welcome, '+data.name+'!','success');}).catch(function(err){errEl.textContent='Network error. Please try again.';errEl.className='auth-error show';btn.disabled=false;btn.textContent=authMode==='register'?'Create Account':'Sign In';});}
+
+function handleSignOut(){localStorage.removeItem('token');localStorage.removeItem('user');location.reload();}
+function showLanding(){document.getElementById('landing').style.display='';document.getElementById('app').classList.remove('active');}
+function showApp(){document.getElementById('landing').style.display='none';document.getElementById('app').classList.add('active');updateUserUI();loadSuggestions();if(currentUser.role==='admin')document.getElementById('adminNavItem').style.display='';}
+function updateUserUI(){if(!currentUser)return;document.getElementById('sidebarName').textContent=currentUser.name||'User';document.getElementById('sidebarAvatar').textContent=getInitial(currentUser.name);document.getElementById('sidebarCredits').textContent=(currentUser.credits||0).toLocaleString()+' credits';if(currentUser.role==='admin')document.getElementById('adminNavItem').style.display='';}
+
+// Auto-login check on page load
+(function(){var token=localStorage.getItem('token');if(!token){return;}var savedUser=localStorage.getItem('user');if(savedUser){try{currentUser=JSON.parse(savedUser);}catch(e){}}fetch('/api/user',{headers:{'Authorization':'Bearer '+token}}).then(function(r){return r.json();}).then(function(data){if(data.error){localStorage.removeItem('token');localStorage.removeItem('user');currentUser=null;return;}currentUser={id:data.id,name:data.name,email:data.email,role:data.role,credits:data.credits||9999,plan:data.plan||'pro',token:token};showApp();}).catch(function(){var su=localStorage.getItem('user');if(su){try{currentUser=JSON.parse(su);showApp();}catch(e){}}});})();
+
+function toggleSidebar(){var s=document.getElementById('sidebar');var o=document.getElementById('sidebarOverlay');s.classList.toggle('open');o.classList.toggle('active');}
+
+function switchPage(page){currentPage=page;document.querySelectorAll('.nav-item').forEach(function(i){i.classList.toggle('active',i.dataset.page===page);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});var el=document.getElementById('page-'+page);if(el)el.classList.add('active');var titles={chat:'Chat',analytics:'Analytics',leaderboard:'Leaderboard',settings:'Settings',admin:'Admin Panel',imagegen:'Image Generation',videogen:'Video Generation'};document.getElementById('headerTitle').textContent=titles[page]||page;var mc=document.getElementById('modePills');var gt=document.getElementById('godModeToggle');var ps=document.getElementById('personaSelect');var ms=document.getElementById('modelSelect');if(page==='chat'){mc.style.display='';gt.style.display='';ps.style.display='';ms.style.display='';}else{mc.style.display='none';gt.style.display='none';ps.style.display='none';ms.style.display='none';}if(page==='analytics')loadAnalytics();if(page==='leaderboard')loadLeaderboard();if(page==='settings')loadSettingsData();if(page==='admin')loadAdmin();var sb=document.getElementById('sidebar');if(sb.classList.contains('open'))toggleSidebar();}
+
+function setMode(mode){currentMode=mode;document.querySelectorAll('.mode-pill').forEach(function(p){p.classList.toggle('active',p.dataset.mode===mode);});var wm=document.getElementById('welcomeMode');if(wm)wm.textContent=mode.charAt(0).toUpperCase()+mode.slice(1);}
+function toggleGodMode(){godModeActive=!godModeActive;document.getElementById('godModeToggle').classList.toggle('active',godModeActive);showToast(godModeActive?'God Mode ACTIVATED!':'God Mode deactivated',godModeActive?'success':'info');}
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,160)+'px';}
+function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+
+function loadSuggestions(){apiFetch('/api/suggestions').then(function(d){if(d.suggestions&&d.suggestions.length)suggestions=d.suggestions;}).catch(function(){});renderSuggestions();}
+function renderSuggestions(){var c=document.getElementById('suggestionChips');if(!c)return;c.innerHTML=suggestions.slice(0,6).map(function(s){return '<div class="suggestion-chip" onclick="useSuggestion(this)">'+escHtml(s)+'</div>';}).join('');}
+function useSuggestion(el){document.getElementById('chatInput').value=el.textContent;autoResize(document.getElementById('chatInput'));document.getElementById('chatInput').focus();}
+
+function loadChatHistory(){/* Guest mode - chat history stored in session only */}
+function renderChatHistory(chats){var c=document.getElementById('chatHistory');if(!chats.length){c.innerHTML='<div style="padding:16px;text-align:center;color:#555566;font-size:13px;">No chats yet</div>';return;}c.innerHTML=chats.map(function(ch){var act=ch.id===currentChatId;return '<div class="chat-item'+(act?' active':'')+'" onclick="loadChat(\''+ch.id+'\')" title="'+escHtml(ch.title||'New Chat')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span style="flex:1;overflow:hidden;text-overflow:ellipsis;">'+escHtml(ch.title||'New Chat')+'</span><span class="chat-item-delete" onclick="event.stopPropagation();deleteChat(\''+ch.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span></div>';}).join('');}
+
+function newChat(){currentChatId=null;currentMessages=[];renderChatView();loadChatHistory();var sb=document.getElementById('sidebar');if(sb.classList.contains('open'))toggleSidebar();}
+
+function loadChat(chatId){apiFetch('/api/chat/messages/'+chatId).then(function(d){currentChatId=chatId;currentMessages=(d.messages||[]).map(function(m){return{role:m.role,content:m.content};});renderChatView();loadChatHistory();}).catch(function(){showToast('Failed to load chat','error');});}
+
+function renderChatView(){var c=document.getElementById('chatMessages');if(!currentMessages.length){c.innerHTML='<div class="chat-welcome"><div class="chat-welcome-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><h2>How can I help you today?</h2><p>Ask me anything. I\'m running in <span id="welcomeMode">'+currentMode.charAt(0).toUpperCase()+currentMode.slice(1)+'</span> mode.</p><div class="suggestion-chips">'+suggestions.slice(0,6).map(function(s){return '<div class="suggestion-chip" onclick="useSuggestion(this)">'+escHtml(s)+'</div>';}).join('')+'</div></div>';return;}c.innerHTML=currentMessages.map(function(msg){if(msg.role==='user'){return '<div class="message user"><div class="message-avatar">'+getInitial(currentUser.name)+'</div><div class="message-bubble">'+escHtml(msg.content).replace(/\n/g,'<br>')+'</div></div>';}else{return '<div class="message assistant"><div class="message-avatar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="message-bubble">'+renderMarkdown(msg.content)+'</div></div>';}}).join('');c.scrollTop=c.scrollHeight;}
+
+function sendMessage(){if(!localStorage.getItem('token')){showToast('Please sign in to use the AI chat','info');openAuth('login');return;}var input=document.getElementById('chatInput');var text=input.value.trim();if(!text||isSending)return;isSending=true;document.getElementById('sendBtn').disabled=true;currentMessages.push({role:'user',content:text});input.value='';input.style.height='auto';renderChatView();var c=document.getElementById('chatMessages');var td=document.createElement('div');td.className='message assistant';td.id='typingIndicator';td.innerHTML='<div class="message-avatar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="message-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>';c.appendChild(td);c.scrollTop=c.scrollHeight;var w=document.getElementById('chatWelcome');if(w)w.remove();apiFetch('/api/chat/ai',{method:'POST',body:{messages:currentMessages,model:document.getElementById('modelSelect').value,mode:currentMode,godMode:godModeActive,persona:document.getElementById('personaSelect').value}}).then(function(r){currentMessages.push({role:'assistant',content:r.content});}).catch(function(e){currentMessages.push({role:'assistant',content:'Sorry, an error occurred: '+e.message});showToast(e.message,'error');}).finally(function(){var t=document.getElementById('typingIndicator');if(t)t.remove();renderChatView();isSending=false;document.getElementById('sendBtn').disabled=false;});}
+
+function deleteChat(chatId){showToast('Guest mode - chats are session only','info');}
+
+function loadAnalytics(){apiFetch('/api/analytics').then(function(d){document.getElementById('statUsers').textContent=(d.totalUsers||0).toLocaleString();document.getElementById('statChats').textContent=(d.totalChats||0).toLocaleString();document.getElementById('statMessages').textContent=(d.totalMessages||0).toLocaleString();document.getElementById('statStatus').textContent='Online';document.getElementById('statStatus').style.color='#00ff88';document.getElementById('statStatusSub').textContent='All systems operational';}).catch(function(){document.getElementById('statStatus').textContent='Error';document.getElementById('statStatus').style.color='#ff5555';});}
+
+function loadLeaderboard(){apiFetch('/api/leaderboard').then(function(d){var tb=document.getElementById('leaderboardBody');if(!d.leaderboard||!d.leaderboard.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#555566;padding:40px;">No data yet</td></tr>';return;}tb.innerHTML=d.leaderboard.map(function(u,i){var rank=i+1;var rc='rank-default';if(rank===1)rc='rank-1';else if(rank===2)rc='rank-2';else if(rank===3)rc='rank-3';return '<tr><td><span class="rank-badge '+rc+'">'+rank+'</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="user-avatar" style="width:28px;height:28px;font-size:11px;">'+getInitial(u.name)+'</div>'+escHtml(u.name||'Unknown')+'</div></td><td>'+(u.totalChats||0)+'</td><td>'+(u.totalTokens||0).toLocaleString()+'</td><td><span style="color:#00ff88;font-size:12px;font-weight:500;">'+escHtml(u.plan||'free')+'</span></td></tr>';}).join('');}).catch(function(){document.getElementById('leaderboardBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#ff5555;padding:40px;">Failed to load</td></tr>';});}
+
+function loadSettingsData(){document.getElementById('settingsName').value=currentUser.name||'';document.getElementById('settingsEmail').value=currentUser.email||'';document.getElementById('settingsBio').value='';document.getElementById('settingsReferralCode').value='';document.getElementById('settingsReferralCount').textContent='0';document.getElementById('apiKeysList').innerHTML='<div style="color:#555566;font-size:13px;padding:8px 0;">Guest mode - API keys not available</div>';updateUserUI();}
+
+function saveProfile(){var name=document.getElementById('settingsName').value.trim();currentUser.name=name;updateUserUI();showToast('Profile updated locally','success');}
+
+function createApiKey(){showToast('Guest mode - API keys not available','info');}
+
+function copyText(text){navigator.clipboard.writeText(text).then(function(){showToast('Copied!','success');}).catch(function(){showToast('Failed to copy','error');});}
+function copyReferralCode(){var code=document.getElementById('settingsReferralCode').value;if(code)copyText(code);}
+
+function clearAllChats(){if(!confirm('Clear all chats?'))return;currentChatId=null;currentMessages=[];renderChatView();showToast('Chats cleared','success');}
+
+function loadAdmin(){apiFetch('/api/admin').then(function(d){allAdminUsers=d.users||[];document.getElementById('adminStatUsers').textContent=allAdminUsers.length;apiFetch('/api/analytics').then(function(a){document.getElementById('adminStatChats').textContent=(a.totalChats||0).toLocaleString();document.getElementById('adminStatMessages').textContent=(a.totalMessages||0).toLocaleString();}).catch(function(){});renderAdminTable(allAdminUsers);}).catch(function(e){document.getElementById('adminBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:#ff5555;padding:40px;">Admin access required</td></tr>';});}
+function renderAdminTable(users){var tb=document.getElementById('adminBody');if(!users||!users.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#555566;padding:40px;">No users found</td></tr>';return;}tb.innerHTML=users.map(function(u){return '<tr data-userid="'+u.id+'"><td style="font-size:12px;color:#8888aa;">'+escHtml(u.email)+'</td><td>'+escHtml(u.name||'-')+'</td><td><select class="admin-input" data-field="plan" style="width:90px;"><option value="free"'+(u.plan==='free'?' selected':'')+'">free</option><option value="pro"'+(u.plan==='pro'?' selected':'')+'">pro</option><option value="enterprise"'+(u.plan==='enterprise'?' selected':'')+'">enterprise</option></select></td><td><select class="admin-input" data-field="role" style="width:80px;"><option value="user"'+(u.role==='user'?' selected':'')+'">user</option><option value="admin"'+(u.role==='admin'?' selected':'')+'">admin</option></select></td><td><input class="admin-input" type="number" value="'+(u.credits||0)+'" data-field="credits" style="width:70px;"></td><td style="font-size:12px;color:#8888aa;">'+formatDate(u.createdAt)+'</td><td><button class="admin-save-btn" onclick="saveAdminUser(this)">Save</button></td></tr>';}).join('');}
+function filterAdminTable(){var q=(document.getElementById('adminSearch').value||'').toLowerCase();var filtered=allAdminUsers.filter(function(u){return (u.email||'').toLowerCase().indexOf(q)!==-1||(u.name||'').toLowerCase().indexOf(q)!==-1;});renderAdminTable(filtered);}
+
+function saveAdminUser(btn){var row=btn.closest('tr');var userId=row.dataset.userid;var plan=row.querySelector('[data-field="plan"]').value;var role=row.querySelector('[data-field="role"]').value;var credits=parseInt(row.querySelector('[data-field="credits"]').value)||0;apiFetch('/api/admin',{method:'POST',body:{userId:userId,plan:plan,role:role,credits:credits}}).then(function(){showToast('User updated','success');}).catch(function(e){showToast(e.message,'error');});}
+
+function generateImage(){if(!localStorage.getItem('token')){showToast('Please sign in to generate images','info');openAuth('login');return;}var prompt=document.getElementById('imagePrompt').value.trim();if(!prompt)return showToast('Please enter a prompt','error');var size=document.getElementById('imageSize').value;var btn=document.getElementById('imageGenBtn');btn.disabled=true;btn.innerHTML='<div class="spinner" style="width:16px;height:16px;border-width:2px;margin:0;"></div> Generating...';document.getElementById('imageOutput').innerHTML='<div class="gen-loading"><div class="spinner"></div><p>Creating your image... This may take 10-30 seconds.</p></div>';apiFetch('/api/image/generate',{method:'POST',body:{prompt:prompt,size:size}}).then(function(d){imageHistoryList.unshift({url:d.imageUrl,prompt:d.prompt});renderImageHistory();document.getElementById('imageOutput').innerHTML='<div class="gen-image-wrap"><img src="'+d.imageUrl+'" alt="'+escHtml(prompt)+'"></div><p style="margin-top:12px;font-size:12px;color:#555566;">'+escHtml(prompt)+' &middot; '+size+'</p><div style="margin-top:12px;display:flex;gap:8px;"><button class="btn-sm btn-sm-green" onclick="downloadGenImage(\''+d.imageUrl+'\',\'godmind-image.png\')">Download</button></div>';showToast('Image generated!','success');}).catch(function(e){document.getElementById('imageOutput').innerHTML='<div class="gen-empty"><p style="color:#ff5555;">Error: '+escHtml(e.message)+'</p></div>';showToast(e.message,'error');}).finally(function(){btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Generate Image';});}
+
+function renderImageHistory(){var c=document.getElementById('imageHistoryGrid');if(!imageHistoryList.length){document.getElementById('imageHistory').style.display='none';return;}document.getElementById('imageHistory').style.display='';c.innerHTML=imageHistoryList.slice(0,8).map(function(img){return '<div class="gen-history-item" onclick="viewImageHistory(\''+img.url.replace(/'/g,"\\'")+'\')"><img src="'+img.url+'" alt="Generated"><p>'+escHtml((img.prompt||'').substring(0,40))+'</p></div>';}).join('');}
+
+function viewImageHistory(url){document.getElementById('imageOutput').innerHTML='<div class="gen-image-wrap"><img src="'+url+'" alt="Generated"></div><div style="margin-top:12px;display:flex;gap:8px;"><button class="btn-sm btn-sm-green" onclick="downloadGenImage(\''+url.replace(/'/g,"\\'")+'\',\'godmind-image.png\')">Download</button></div>';}
+
+function downloadGenImage(url,name){var a=document.createElement('a');a.href=url;a.download=name||'godmind-image.png';a.click();showToast('Downloading...','info');}
+
+function createVideo(){if(!localStorage.getItem('token')){showToast('Please sign in to generate videos','info');openAuth('login');return;}var prompt=document.getElementById('videoPrompt').value.trim();if(!prompt)return showToast('Please enter a prompt','error');var quality=document.getElementById('videoQuality').value;var duration=document.getElementById('videoDuration').value;var btn=document.getElementById('videoGenBtn');btn.disabled=true;btn.innerHTML='<div class="spinner" style="width:16px;height:16px;border-width:2px;margin:0;"></div> Creating...';document.getElementById('videoOutput').innerHTML='<div class="gen-loading"><div class="spinner"></div><p>Creating your video... This may take 1-3 minutes.</p></div>';apiFetch('/api/video/create',{method:'POST',body:{prompt:prompt,quality:quality,duration:parseInt(duration)}}).then(function(d){var taskId=d.taskId;document.getElementById('videoOutput').innerHTML='<div class="video-status"><p style="font-size:14px;font-weight:600;color:#00ff88;margin-bottom:4px;">Video Generating...</p><p style="font-size:13px;color:#8888aa;">Task ID: '+escHtml(taskId)+'</p><div class="video-status-bar"><div class="video-status-bar-fill" style="width:10%;"></div></div><p class="video-status-text">Processing... Please wait</p></div>';var pollCount=0;var maxPolls=60;var interval=setInterval(function(){pollCount++;if(pollCount>maxPolls){clearInterval(interval);delete videoPollIntervals[taskId];document.getElementById('videoOutput').innerHTML='<div class="gen-empty"><p style="color:#ff5555;">Video generation timed out (5 min). Please try again.</p></div>';showToast('Video generation timed out','error');return;}apiFetch('/api/video/status?taskId='+taskId).then(function(s){var pct=Math.min(Math.round(pollCount/maxPolls*90)+10,95);if(s.status==='SUCCESS'){clearInterval(interval);delete videoPollIntervals[taskId];var videoUrl=s.videoUrl;if(videoUrl){document.getElementById('videoOutput').innerHTML='<div class="gen-video-wrap"><video controls autoplay><source src="'+videoUrl+'" type="video/mp4">Your browser does not support video.</video></div><p style="margin-top:12px;font-size:12px;color:#555566;">'+escHtml(prompt)+' &middot; '+duration+'s &middot; '+quality+'</p><div style="margin-top:12px;display:flex;gap:8px;"><a href="'+videoUrl+'" target="_blank" class="btn-sm btn-sm-green" style="text-decoration:none;">Open Video</a></div>';showToast('Video generated!','success');}else{document.getElementById('videoOutput').innerHTML='<div class="gen-empty"><p style="color:#ff5555;">Video created but no URL returned. Try again.</p></div>';}}else if(s.status==='FAIL'){clearInterval(interval);delete videoPollIntervals[taskId];document.getElementById('videoOutput').innerHTML='<div class="gen-empty"><p style="color:#ff5555;">Video generation failed. Please try again.</p></div>';showToast('Video generation failed','error');}else{var bar=document.querySelector('.video-status-bar-fill');var txt=document.querySelector('.video-status-text');if(bar)bar.style.width=pct+'%';if(txt)txt.textContent='Processing... ('+pollCount*5+'s elapsed)';}}).catch(function(e){console.error('Poll error:',e);});},5000);videoPollIntervals[taskId]=interval;}).catch(function(e){document.getElementById('videoOutput').innerHTML='<div class="gen-empty"><p style="color:#ff5555;">Error: '+escHtml(e.message)+'</p></div>';showToast(e.message,'error');}).finally(function(){btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="5 3 19 12 5 21 5 3"/></svg> Generate Video';});}
+
+// Init - landing shown by default, auto-login if token exists
+(function(){var savedToken=localStorage.getItem('token');var savedUser=localStorage.getItem('user');if(savedToken&&savedUser){try{var u=JSON.parse(savedUser);currentUser={id:u.id,name:u.name,email:u.email,role:u.role,credits:u.credits||9999,plan:u.plan||'pro',token:savedToken};showApp();}catch(e){}}})();
+</script>
+</body>
+</html>
